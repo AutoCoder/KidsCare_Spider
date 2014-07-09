@@ -1,0 +1,8 @@
+*.pyc
+*.log
+*.json
+*.metadata
+ScrapyHistroy
+uncomplete_list.txt
+.project
+.pydevproject
