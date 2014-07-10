@@ -17,9 +17,9 @@ import sys
 
 class JDMilk_Spider(MilkSpider):
     name = "jd"
-    #allowed_domains = ["http://www.qunar.com/"]
+    allowed_domains = ["http://m.jd.com"]
     start_urls = [
-        "http://dujia.qunar.com/tejia",
+        "http://m.jd.com/products/1319-1523-7052.html",
     ]
     
     def __init__(self):
@@ -33,35 +33,61 @@ class JDMilk_Spider(MilkSpider):
         """
         #sel = Selector(response)
         sel = Selector(None, response.body_as_unicode().replace('\t','').replace('\r','').replace('\n',''), 'html') #avoid the html contain "\n", "\r" , which will caused the xpath doesn't work well
-        listdata = sel.xpath('//div[@id="jptj"]/div')
+        listdata = sel.xpath('//div[@class="pmc"]')
         
-        for ticket in listdata:
+        item = Milk()
+        for prod in listdata:
             try:
-                detail_url = ticket.xpath('div[@class="cont"]/dl/dt/a/@href').extract()[0]
-                yield Request(detail_url, callback=self.parse_ticket)
+                title = prod.xpath('div[@class="title"]/text()').extract()[0].strip()
+                prod_link = self.allowed_domains[0] + prod.xpath('div[@class="title"]/a/@href').extract()[0].strip()
+                pic_link = prod.xpath('div[@class="pic"]/a/img/@src').extract()[0].strip()
+                price = prod.xpath('div[@class="price"]/Font/text()').extract()[0].strip()[1:]
+                item["price"] = float(price)
+                item["pic_link"] = str(pic_link)
+                item["prod_link"] = str(prod_link)
+                dict = self.__ParseTitleToDict(title)
+                item["name"] = dict["name"]
+                item["brand"] = dict["brand"]
+                item["segment"] = dict["segment"]
+                item["volume"] = dict["volume"]  
+                yield item
                 
             except Exception, info: #IndexError
                 s=sys.exc_info()             
-                log.msg('[qunar] detail_url : %s' % detail_url, log.ERROR)
-                log.msg("[qunar] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
-                log.msg('[qunar] Ticket : %s' % ticket, log.ERROR)
+                log.msg('[jd_milk] prod_link : %s' % prod_link, log.ERROR)
+                log.msg("[jd_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+                log.msg('[jd_milk] item : %s' % item, log.ERROR)
+                
+        nextpage_node = sel.xpath('//div[@class="page"]/a')[0]
+        nextpage_link = self.allowed_domains[0] + nextpage_node.xpath('@herf').extract()[0].strip()
         
+        yield Request(nextpage_link, callback=self.parse)
     
-    def parse_ticket(self, response):
-        """
-        This Function parse the travel_product_page to items
-        """
-        item = Milk()
-        try:     
-            for key, value in item.get_default_item_dict().iteritems():
-                item[key] = value
- 
-        except Exception, info: #IndexError
-            s=sys.exc_info()
-            log.msg('[qunar] item : %s' % item, log.ERROR)
-            log.msg("[qunar] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+    def __ParseTitleToDict(self, title):
+        dict = {}
+        
+        i_duan = title.find(u"\u6bb5")
+        if i_duan != -1 :
+            dict["segment"] = int(title[i_duan-1])
             
-        return item
+        i_ke = title.find(u"\u514b") # find ke
+        if i_ke != -1:
+            volume = int(title[i_ke-3:i_ke])
+            
+        i_g = title.find(u"g") # find ke
+        if i_g != -1:
+            volume = int(title[i_g-3:i_g])
+            
+        i_G = title.find(u"G") # find ke
+        if i_G != -1:
+            volume = int(title[i_G-3:i_G])
+                    
+        i_mul = title.find(u"g*")
+        if i_mul != -1:
+            volume = int(title[i_mul-3:i_mul]) * int(title[i_mul+1])
+        
+        dict["volume"] = volume   
+        return dict
     
     def __unicode__(self):
         return unicode(self.name)

@@ -15,7 +15,7 @@ import sys
 #import re
 #import json
 
-class JDMilk_Spider(MilkSpider):
+class YHDMilk_Spider(MilkSpider):
     name = "yhd"
     #allowed_domains = ["http://www.qunar.com/"]
     start_urls = [
