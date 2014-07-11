@@ -23,7 +23,7 @@ class JDMilk_Spider(MilkSpider):
     ]
     
     def __init__(self):
-        super(MilkSpider, self).__init__()
+        super(JDMilk_Spider, self).__init__()
     
     def parse(self, response):
         """
@@ -38,56 +38,33 @@ class JDMilk_Spider(MilkSpider):
         item = Milk()
         for prod in listdata:
             try:
-                title = prod.xpath('div[@class="title"]/text()').extract()[0].strip()
+                title = prod.xpath('div[@class="title"]/a/text()').extract()[0].strip()
                 prod_link = self.allowed_domains[0] + prod.xpath('div[@class="title"]/a/@href').extract()[0].strip()
                 pic_link = prod.xpath('div[@class="pic"]/a/img/@src').extract()[0].strip()
-                price = prod.xpath('div[@class="price"]/Font/text()').extract()[0].strip()[1:]
+                price = prod.xpath('div[@class="price"]/font/text()').extract()[0].strip()[1:]
                 item["price"] = float(price)
                 item["pic_link"] = str(pic_link)
                 item["prod_link"] = str(prod_link)
-                dict = self.__ParseTitleToDict(title)
+                dict = super(JDMilk_Spider, self).ParseTitleToDict(title)
                 item["name"] = dict["name"]
                 item["brand"] = dict["brand"]
                 item["segment"] = dict["segment"]
-                item["volume"] = dict["volume"]  
+                item["volume"] = dict["volume"]
+                item["unitprice"] = item["price"] / dict["volume"] * 100.0
                 yield item
                 
             except Exception, info: #IndexError
-                s=sys.exc_info()             
-                log.msg('[jd_milk] prod_link : %s' % prod_link, log.ERROR)
+                s=sys.exc_info()                             
                 log.msg("[jd_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+                log.msg('[jd_milk] prod_link : %s' % prod_link, log.ERROR)
                 log.msg('[jd_milk] item : %s' % item, log.ERROR)
                 
-        nextpage_node = sel.xpath('//div[@class="page"]/a')[0]
-        nextpage_link = self.allowed_domains[0] + nextpage_node.xpath('@herf').extract()[0].strip()
+        nextpage_node = sel.xpath(u'//div[@class="page"]/a[text()[contains(., "\u4e0b\u4e00\u9875")]]')
+        if len(nextpage_node) == 0:
+            return 
+        nextpage_link = self.allowed_domains[0] + nextpage_node.xpath(u'@href').extract()[0].strip()
         
-        yield Request(nextpage_link, callback=self.parse)
-    
-    def __ParseTitleToDict(self, title):
-        dict = {}
-        
-        i_duan = title.find(u"\u6bb5")
-        if i_duan != -1 :
-            dict["segment"] = int(title[i_duan-1])
-            
-        i_ke = title.find(u"\u514b") # find ke
-        if i_ke != -1:
-            volume = int(title[i_ke-3:i_ke])
-            
-        i_g = title.find(u"g") # find ke
-        if i_g != -1:
-            volume = int(title[i_g-3:i_g])
-            
-        i_G = title.find(u"G") # find ke
-        if i_G != -1:
-            volume = int(title[i_G-3:i_G])
-                    
-        i_mul = title.find(u"g*")
-        if i_mul != -1:
-            volume = int(title[i_mul-3:i_mul]) * int(title[i_mul+1])
-        
-        dict["volume"] = volume   
-        return dict
+        yield Request(url=nextpage_link, callback=self.parse)
     
     def __unicode__(self):
         return unicode(self.name)
