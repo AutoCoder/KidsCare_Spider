@@ -5,19 +5,17 @@ Created on 2014.6.12
 '''
 from scrapy.selector import Selector
 from scrapy.http import Request
-
+from scrapy.exceptions import DropItem
 #from spiderutility import SpiderUtility
 from kidscare.items import Milk
 from kidscare.spiders.basespider import MilkSpider
 from scrapy import log
 
 import sys
-#import re
-#import json
 
 class JDMilk_Spider(MilkSpider):
     name = "jd"
-    allowed_domains = ["http://m.jd.com"]
+    allowed_domains = ["m.jd.com"]
     start_urls = [
         "http://m.jd.com/products/1319-1523-7052.html",
     ]
@@ -39,7 +37,7 @@ class JDMilk_Spider(MilkSpider):
         for prod in listdata:
             try:
                 title = prod.xpath('div[@class="title"]/a/text()').extract()[0].strip()
-                prod_link = self.allowed_domains[0] + prod.xpath('div[@class="title"]/a/@href').extract()[0].strip()
+                prod_link = "http://" + self.allowed_domains[0] + prod.xpath('div[@class="title"]/a/@href').extract()[0].strip()
                 pic_link = prod.xpath('div[@class="pic"]/a/img/@src').extract()[0].strip()
                 price = prod.xpath('div[@class="price"]/font/text()').extract()[0].strip()[1:]
                 item["price"] = float(price)
@@ -51,6 +49,8 @@ class JDMilk_Spider(MilkSpider):
                 item["segment"] = dict["segment"]
                 item["volume"] = dict["volume"]
                 item["unitprice"] = item["price"] / dict["volume"] * 100.0
+                if item["unitprice"] > 90 and item["unitprice"] < 10:
+                    raise DropItem('Volume must be parsed incorrectly, the unitprice is out of normal range' )
                 yield item
                 
             except Exception, info: #IndexError
@@ -62,9 +62,9 @@ class JDMilk_Spider(MilkSpider):
         nextpage_node = sel.xpath(u'//div[@class="page"]/a[text()[contains(., "\u4e0b\u4e00\u9875")]]')
         if len(nextpage_node) == 0:
             return 
-        nextpage_link = self.allowed_domains[0] + nextpage_node.xpath(u'@href').extract()[0].strip()
+        nextpage_link = "http://" + self.allowed_domains[0] + str(nextpage_node.xpath(u'@href').extract()[0].strip())
         
         yield Request(url=nextpage_link, callback=self.parse)
-    
+            
     def __unicode__(self):
         return unicode(self.name)

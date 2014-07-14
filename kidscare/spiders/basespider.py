@@ -11,11 +11,12 @@ import json
 import os
 
 configdir = os.path.dirname(os.path.dirname(__file__)) + "\conf"
+mappingnum = {u"\u4e00" : 1, u"\u4e8c" : 2, u"\u4e09": 3, u"\u56db": 4, u"\u4e94": 5, u"\u516d": 6, u"\u4e03": 7, u"\u516b": 8, u"\u4e5d": 9, u"\u5341": 10}	
 
 class MilkSpider(Spider):
 	def __init__(self):
 		log.start('E:\OpenSource\Spider_praitise\KidsCare_Spider\ScrapyHistory\%s\%s.log' % (self.name, str(date.today())), loglevel=log.INFO, logstdout=False)		
-		configfile = open(configdir + "\dataconfig.json",'r')
+		configfile = open(configdir + "\dataconfig",'r')
 		configdict = json.load(configfile, encoding='utf-8')
 		self.milktree = configdict[u"MilkBrandTree"]
 		
@@ -24,7 +25,7 @@ class MilkSpider(Spider):
 		Extract the num in title, like "1200g*3" 
 		if direction=True will return the before number {1200}
 		else return after number {3}
-	"""
+		"""
 
 		if direction:
 			temp = indexfrom
@@ -44,7 +45,56 @@ class MilkSpider(Spider):
 					break
 			return title[temp:indexfrom]
 		
+	def __extractChineseNum(self, title, indexfrom, direction=True):
+		"""
+		Extract the ChineseNum in title, like "shierhe" 
+		if direction=True will return the before number {1200}
+		else return after number {3}
+		"""
+		str = u""
+		if direction: 
+			if indexfrom != 0:		  
+				indexfrom -= 1
+				while True:
+					if indexfrom >= 0 and title[indexfrom] in mappingnum.keys():
+						str = title[indexfrom] + str
+						indexfrom -= 1
+					else:
+						break
+		else:
+			if indexfrom < len(title)-1:
+				indexfrom += 1
+				while True:
+					if indexfrom < len(title) and title[indexfrom] in mappingnum.keys():
+						str += title[indexfrom]
+						indexfrom += 1
+					else:
+						break
+		
+		return self.__convertChinese(str)
+
+
+	def __convertChinese(self, chinese):
+		"""
+			only for number from 1~100, the input argument must be chinese digit
+		"""
+		lens = len(chinese)
+		if lens == 0:
+			return ""
+		elif lens == 1:
+			return mappingnum[chinese]
+		elif lens == 2:
+			return mappingnum[chinese[0]] + mappingnum[chinese[1]]
+		elif lens == 3:
+			return mappingnum[chinese[0]] * mappingnum[chinese[1]] + mappingnum[chinese[2]]
+		else:
+			raise ValueError("convertChinese function is only available for 1 ~ 100")	
+		
+				
 	def ParseTitleToDict(self, title): #return {brand, name, volume, segment}
+		"""
+		This function is to parse the unnormalized title to  {brand, name, volume, segment}
+		"""
 		dict = {}
 		try:
 			i_duan = title.find(u"\u6bb5")
@@ -63,9 +113,15 @@ class MilkSpider(Spider):
 					if i_G != -1:
 						volume = int(self.__extractNum(title, i_G))
 						
-			i_mul = title.find(u"g*")
+			i_mul = title.find(u"g*") 
+			if i_mul == -1:
+				i_mul = title.find(u"\u514b*")
 			if i_mul != -1:
 				volume = int(self.__extractNum(title, i_mul, True)) * int(self.__extractNum(title, i_mul+1, False))
+			
+			i_mul = title.find(u"\u76d2")
+			if i_mul != -1:
+				volume *= self.__extractChineseNum(title, i_mul, True)
 
 			dict["volume"] = volume
 			
