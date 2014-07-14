@@ -49,14 +49,13 @@ class JDMilk_Spider(MilkSpider):
                 item["segment"] = dict["segment"]
                 item["volume"] = dict["volume"]
                 item["unitprice"] = item["price"] / dict["volume"] * 100.0
-                if item["unitprice"] > 90 and item["unitprice"] < 10:
-                    raise DropItem('Volume must be parsed incorrectly, the unitprice is out of normal range' )
-                yield item
+                if item["unitprice"] < 90 and item["unitprice"] > 10:
+                    yield item
                 
             except Exception, info: #IndexError
                 s=sys.exc_info()                             
                 log.msg("[jd_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
-                log.msg('[jd_milk] prod_link : %s' % prod_link, log.ERROR)
+                #log.msg('[jd_milk] prod_link : %s' % prod_link, log.ERROR)
                 log.msg('[jd_milk] item : %s' % item, log.ERROR)
                 
         nextpage_node = sel.xpath(u'//div[@class="page"]/a[text()[contains(., "\u4e0b\u4e00\u9875")]]')
