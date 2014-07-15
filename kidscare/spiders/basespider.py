@@ -143,7 +143,7 @@ class MilkSpider(Spider):
 			namelist = self.milktree[dict["brand"]].keys()
 			found = False
 			for name in namelist:
-				if title.find(name) != -1 or title.find(name.upper()) != -1:
+				if title.find(name) != -1 or title.find(name.upper()) != -1 or title.find(name.lower()) != -1:
 					dict["name"] = self.milktree[dict["brand"]][name]
 					found = True
 					break

@@ -19,11 +19,11 @@ class YHDMilk_Spider(MilkSpider):
     name = "yhd"
     #allowed_domains = ["http://www.qunar.com/"]
     start_urls = [
-        "http://dujia.qunar.com/tejia",
+        "http://www.yhd.com/ctg/s2/vc1242/",
     ]
     
     def __init__(self):
-        super(MilkSpider, self).__init__()
+        super(YHDMilk_Spider, self).__init__()
     
     def parse(self, response):
         """
@@ -33,35 +33,55 @@ class YHDMilk_Spider(MilkSpider):
         """
         #sel = Selector(response)
         sel = Selector(None, response.body_as_unicode().replace('\t','').replace('\r','').replace('\n',''), 'html') #avoid the html contain "\n", "\r" , which will caused the xpath doesn't work well
-        listdata = sel.xpath('//div[@id="jptj"]/div')
+        listdata = sel.xpath('//li[@class="search_item"]')
         
-        for ticket in listdata:
-            try:
-                detail_url = ticket.xpath('div[@class="cont"]/dl/dt/a/@href').extract()[0]
-                yield Request(detail_url, callback=self.parse_ticket)
-                
-            except Exception, info: #IndexError
-                s=sys.exc_info()             
-                log.msg('[qunar] detail_url : %s' % detail_url, log.ERROR)
-                log.msg("[qunar] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
-                log.msg('[qunar] Ticket : %s' % ticket, log.ERROR)
-        
-    
-    def parse_ticket(self, response):
-        """
-        This Function parse the travel_product_page to items
-        """
         item = Milk()
-        try:     
-            for key, value in item.get_default_item_dict().iteritems():
-                item[key] = value
+        for prod in listdata:
+            try:
+                for sub_prod in prod.xpath('div'):
+                    prodsize_attr = sub_prod.xpath('@productsize')
+                    if len(prodsize_attr):
+                        mul = int(prodsize_attr.extract()[0])
+                    else:
+                        mul = 1
+                    
+                    lazyload_attr = sub_prod.xpath('@lazyload_textarea')
+                    if len(lazyload_attr) and lazyload_attr.extract()[0] != "":
+                        subnode = sub_prod.xpath('textarea')
+                        price = subnode.xpath('div[@class="pricebox clearfix"]/span[@class="color_red price"]/text()').extract()[0].strip()[1:]
+                        title = subnode.xpath('p[@class="title"]/a/@title').extract()[0]
+                        prod_lick = subnode.xpath('p[@class="title"]/a/@href').extract()[0]
+                        pic_link = subnode.xpath('a[@class="search_prod_img"]/img/@src').extract()[0]
+                        
+                    else:
+                        price = sub_prod.xpath('div[@class="pricebox clearfix"]/span[@class="color_red price"]/text()').extract()[0].strip()[1:]
+                        title = sub_prod.xpath('p[@class="title"]/a/@title').extract()[0]
+                        prod_lick = sub_prod.xpath('p[@class="title"]/a/@href').extract()[0]
+                        pic_link = sub_prod.xpath('a[@class="search_prod_img"]/img/@src').extract()[0]
+                        
+                    dict = super(YHDMilk_Spider, self).ParseTitleToDict(title)    
+                    item["name"] = dict["name"]
+                    item["brand"] = dict["brand"]
+                    item["segment"] = dict["segment"]
+                    item["prod_link"] = prod_lick
+                    item["pic_link"] = pic_link
+                    item["volume"] = dict["volume"] * mul
+                    item["price"] = float(price)
+                    item["unitprice"] = item["price"] / item["volume"] * 100.0
  
-        except Exception, info: #IndexError
-            s=sys.exc_info()
-            log.msg('[qunar] item : %s' % item, log.ERROR)
-            log.msg("[qunar] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+                    yield item
+                    
+            except Exception, info: #IndexError
+                s=sys.exc_info()                             
+                log.msg("[tmall_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+                log.msg('[tmall_milk] item : %s' % item, log.ERROR)
+                
+        nextpage_node = sel.xpath(u'//a[@class="page_next"]')
+        if len(nextpage_node) == 0:
+            return 
+        nextpage_link = str(nextpage_node.xpath(u'@href').extract()[0].strip())
+        
+        yield Request(url=nextpage_link, callback=self.parse)
             
-        return item
-    
     def __unicode__(self):
         return unicode(self.name)
