@@ -99,7 +99,10 @@ class MilkSpider(Spider):
 		try:
 			i_duan = title.find(u"\u6bb5")
 			if i_duan != -1 :
-				dict["segment"] = int(self.__extractNum(title, i_duan))
+				segment = self.__extractNum(title, i_duan)
+				if len(segment) == 0:
+					segment = self.__extractChineseNum(title, i_duan)
+				dict["segment"] = int(segment)
 				
 			i_ke = title.find(u"\u514b") # find ke
 			if i_ke != -1:
@@ -140,8 +143,8 @@ class MilkSpider(Spider):
 			namelist = self.milktree[dict["brand"]].keys()
 			found = False
 			for name in namelist:
-				if title.find(name) != -1:
-					dict["name"] = name
+				if title.find(name) != -1 or title.find(name.upper()) != -1:
+					dict["name"] = self.milktree[dict["brand"]][name]
 					found = True
 					break
 			if not found:
