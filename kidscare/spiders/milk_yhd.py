@@ -68,13 +68,13 @@ class YHDMilk_Spider(MilkSpider):
                     item["volume"] = dict["volume"] * mul
                     item["price"] = float(price)
                     item["unitprice"] = item["price"] / item["volume"] * 100.0
- 
-                    yield item
+                    if item["unitprice"] < 90 and item["unitprice"] > 10:
+                        yield item
                     
             except Exception, info: #IndexError
                 s=sys.exc_info()                             
-                log.msg("[tmall_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
-                log.msg('[tmall_milk] item : %s' % item, log.ERROR)
+                log.msg("[yhd_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+                log.msg('[yhd_milk] item : %s' % item, log.ERROR)
                 
         nextpage_node = sel.xpath(u'//a[@class="page_next"]')
         if len(nextpage_node) == 0:
