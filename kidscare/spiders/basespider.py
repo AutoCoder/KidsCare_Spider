@@ -124,8 +124,8 @@ class MilkSpider(Spider):
 				i_mul = title.find(u"\u76d2")
 				if i_mul != -1:
 					mul = self.__extractChineseNum(title, i_mul, True) + self.__extractNum(title, i_mul, True)
-					if mul is not '':
-						volume *=  mul
+					if mul.isdigit():
+						volume *=  int(mul)
 
 			dict["volume"] = volume
 			
