@@ -106,11 +106,20 @@ class MilkSpider(Spider):
 		dict = {}
 		try:
 			i_duan = title.find(u"\u6bb5")
+			segment = ''
 			if i_duan is not -1 :
 				segment = self.__extractNum(title, i_duan)
-				if len(segment) is 0:
+				if not segment.isdigit():
 					segment = self.__extractChineseNum(title, i_duan)
-				dict["segment"] = int(segment)
+					
+			if not segment.isdigit():
+				i_jie = title.find(u"\u9636")
+				if i_jie is not -1 :
+					segment = self.__extractNum(title, i_jie)
+					if not segment.isdigit():
+						segment = self.__extractChineseNum(title, i_jie)	
+										
+			dict["segment"] = int(segment)
 			
 			volume = int( self.__regexNum(title) )  
 						
