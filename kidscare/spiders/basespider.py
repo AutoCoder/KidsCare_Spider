@@ -11,7 +11,10 @@ import json
 import os
 import re
 
-configdir = os.path.dirname(os.path.dirname(__file__)) + "\conf"
+BasicDir = os.path.dirname(os.path.dirname(__file__))
+PytesserDir = BasicDir + '\pytesser'
+ImageDir = os.path.dirname(BasicDir) + '\\scrapyImg'
+configdir = BasicDir + "\conf"
 mappingnum = {u"\u4e00" : '1', u"\u4e8c" : '2', u"\u4e09": '3', u"\u56db": '4', u"\u4e94": '5', u"\u516d": '6', u"\u4e03": '7', u"\u516b": '8', u"\u4e5d": '9', u"\u5341": '1'}	
 
 class MilkSpider(Spider):

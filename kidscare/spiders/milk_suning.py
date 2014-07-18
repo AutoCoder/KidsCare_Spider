@@ -8,13 +8,26 @@ from scrapy.http import Request
 
 #from spiderutility import SpiderUtility
 from kidscare.items import Milk
-from kidscare.spiders.basespider import MilkSpider
+from kidscare.spiders.basespider import MilkSpider, ImageDir
 from scrapy import log
-
+import urllib2
 import sys
+import time
+import os
 #import re
 #import json
 
+def downLoadImg(url,location):
+    try:
+        req=urllib2.Request(url)
+        u=urllib2.urlopen(req)
+        content=u.read()
+        f = open(location, "w+b")
+        f.write(content)
+        f.close()
+    except Exception,e:
+        log.msg('download price image fail : %s' % e, log.ERROR)
+                
 class SUNINGMilk_Spider(MilkSpider):
     name = "suning"
     #allowed_domains = ["http://www.qunar.com/"]
@@ -45,10 +58,13 @@ class SUNINGMilk_Spider(MilkSpider):
                 prod_link = prod.xpath('a/@href').extract()[0]
                 pic_link = prod.xpath('a/img/@src | a/img/@src2').extract()[0]
                 info_node = prod.xpath('div[@class="inforBg"]')
-                price = info_node.xpath('p[@class="price"]/img/@src | p[@class="price"]/img/@src2').extract()[0] #price image link
+                price_link = info_node.xpath('p[@class="price"]/img/@src | p[@class="price"]/img/@src2').extract()[0] #price image link
+                #fp = urllib2.urlopen(price, timeout=5)
+                location = "".join([ImageDir, '\\', str(int(time.time())), '.png'])
+                downLoadImg(price_link, location)
                 item["prod_link"] = prod_link
                 item["pic_link"] = pic_link
-                item["price"] = price
+                item["price"] = location
                 title = info_node.xpath('span/a/p/text()').extract()[0]
                 dict = super(SUNINGMilk_Spider, self).ParseTitleToDict(title)
                 item["name"] = dict["name"]
@@ -61,9 +77,9 @@ class SUNINGMilk_Spider(MilkSpider):
                     
             except Exception, info: #IndexError
                 s=sys.exc_info()                             
-                log.msg("[dangdang_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
+                log.msg("[suning_milk] Error '%s' happened on line %d" % (s[1],s[2].tb_lineno), log.ERROR)
                 #log.msg('[jd_milk] prod_link : %s' % prod_link, log.ERROR)
-                log.msg('[dangdang_milk] item : %s' % item, log.ERROR)
+                log.msg('[suning_milk] item : %s' % item, log.ERROR)
         
         nextpage_node = sel.xpath('//a[@id="nextPage"]/@href')
         if not nextpage_node:

@@ -3,6 +3,6 @@
 *.json
 *.metadata
 ScrapyHistroy
-uncomplete_list.txt
+scrapyImg
 .project
 .pydevproject

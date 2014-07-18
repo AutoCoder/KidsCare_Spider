@@ -14,3 +14,6 @@ NEWSPIDER_MODULE = 'kidscare.spiders'
 COMMANDS_MODULE = 'kidscare.commands'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'kidscare (+http://www.yourdomain.com)'
+ITEM_PIPELINES = {'kidscare.pipelines.KidscarePreprocessPipeline': 1,
+                  'kidscare.pipelines.ImagePriceExtractPipeline': 2,
+                  'kidscare.pipelines.MilkProdStoreDbPipeline': 3,}
