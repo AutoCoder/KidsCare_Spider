@@ -52,13 +52,19 @@ class YHDMilk_Spider(MilkSpider):
                         title = subnode.xpath('p[@class="title"]/a/@title').extract()[0]
                         prod_lick = subnode.xpath('p[@class="title"]/a/@href').extract()[0]
                         pic_link = subnode.xpath('a[@class="search_prod_img"]/img/@src').extract()[0]
-                        
+                        if not pic_link:
+                            pic_link_node = sub_prod.xpath('a[@class="search_prod_img"]/img/@original')
+                            if pic_link_node:
+                                pic_link = pic_link_node.extract()[0]                        
                     else:
                         price = sub_prod.xpath('div[@class="pricebox clearfix"]/span[@class="color_red price"]/text()').extract()[0].strip()[1:]
                         title = sub_prod.xpath('p[@class="title"]/a/@title').extract()[0]
                         prod_lick = sub_prod.xpath('p[@class="title"]/a/@href').extract()[0]
                         pic_link = sub_prod.xpath('a[@class="search_prod_img"]/img/@src').extract()[0]
-                        
+                        if not pic_link:
+                            pic_link_node = sub_prod.xpath('a[@class="search_prod_img"]/img/@original')
+                            if pic_link_node:
+                                pic_link = pic_link_node.extract()[0]
                     dict = super(YHDMilk_Spider, self).ParseTitleToDict(title)    
                     item["name"] = dict["name"]
                     item["brand"] = dict["brand"]
