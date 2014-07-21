@@ -60,7 +60,7 @@ class SUNINGMilk_Spider(MilkSpider):
                 info_node = prod.xpath('div[@class="inforBg"]')
                 price_link = info_node.xpath('p[@class="price"]/img/@src | p[@class="price"]/img/@src2').extract()[0] #price image link
                 #fp = urllib2.urlopen(price, timeout=5)
-                location = "".join([ImageDir, '\\', str(int(time.time())), '.png'])
+                location = "".join([ImageDir, '/', str(int(time.time())), '.png'])
                 downLoadImg(price_link, location)
                 item["prod_link"] = prod_link
                 item["pic_link"] = pic_link
