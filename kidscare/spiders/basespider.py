@@ -12,15 +12,16 @@ import os
 import re
 
 BasicDir = os.path.dirname(os.path.dirname(__file__))
-PytesserDir = BasicDir + '\pytesser'
-ImageDir = os.path.dirname(BasicDir) + '\\scrapyImg'
-configdir = BasicDir + "\conf"
+PytesserDir = BasicDir + '/pytesser'
+ProjectDir = os.path.dirname(BasicDir)
+ImageDir = ProjectDir + '/scrapyImg'
+configdir = BasicDir + "/conf"
 mappingnum = {u"\u4e00" : '1', u"\u4e8c" : '2', u"\u4e09": '3', u"\u56db": '4', u"\u4e94": '5', u"\u516d": '6', u"\u4e03": '7', u"\u516b": '8', u"\u4e5d": '9', u"\u5341": '1'}	
 
 class MilkSpider(Spider):
 	def __init__(self):
-		log.start('E:\OpenSource\Spider_praitise\KidsCare_Spider\ScrapyHistory\%s\%s.log' % (self.name, str(date.today())), loglevel=log.INFO, logstdout=False)		
-		configfile = open(configdir + "\dataconfig",'r')
+		log.start('%s/ScrapyHistory/%s/%s.log' % (ProjectDir, self.name, str(date.today())), loglevel=log.INFO, logstdout=False)		
+		configfile = open(configdir + "/dataconfig",'r')
 		configdict = json.load(configfile, encoding='utf-8')
 		self.milktree = configdict[u"MilkBrandTree"]
 		

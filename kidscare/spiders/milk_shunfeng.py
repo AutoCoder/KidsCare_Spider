@@ -45,8 +45,8 @@ class SFMilk_Spider(MilkSpider):
             try:
                 prod_inner_node = prod.xpath('div[@class="l-wrap"]')
                 title = prod_inner_node.xpath('div[@class="title-c"]/a/@title').extract()[0]
-                prod_link = prod_inner_node.xpath('div[@class="title-c"]/a/img/@data').extract()[0]
-                pic_link = prod_inner_node.xpath('div[@class="pic"]/a/@href').extract()[0]
+                prod_link = prod_inner_node.xpath('div[@class="title-c"]/a/@href').extract()[0]
+                pic_link = prod_inner_node.xpath('div[@class="pic"]/a/img/@data').extract()[0]
                 price = prod_inner_node.xpath('div[@class="price"]/span/strong/text()').extract()[0]
                 item["prod_link"] = prod_link
                 item["pic_link"] = pic_link

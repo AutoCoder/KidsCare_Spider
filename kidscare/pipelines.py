@@ -12,7 +12,14 @@ import MySQLdb
 import urllib2
 import os
 import shutil
+import platform
 milk_website = ('tmall','jd','yhd','suning','weiwei','sfbest')
+
+DbHost = None
+if platform.system() is 'Windows':
+    DbHost = '127.0.0.1'
+elif platform.system() is 'Linux':
+    DbHost = '10.31.186.63'
 
 class KidscarePreprocessPipeline(object):
     """
@@ -23,7 +30,7 @@ class KidscarePreprocessPipeline(object):
     
     def open_spider(self, spider):
         try:
-            self.conn=MySQLdb.connect(host='127.0.0.1',user='spider',passwd='wodemima',port=3306, charset='utf8')
+            self.conn=MySQLdb.connect(host=DbHost, user='spider',passwd='wodemima',port=3306, charset='utf8')
             cur=self.conn.cursor()
             cur.execute('create database if not exists Mom_Baby') 
             self.conn.commit()    
@@ -68,7 +75,7 @@ class MilkProdStoreDbPipeline(object):
             
     def open_spider(self, spider):
         try:
-            self.conn=MySQLdb.connect(host='127.0.0.1',user='spider',passwd='wodemima',port=3306, charset='utf8')
+            self.conn=MySQLdb.connect(host=DbHost, user='spider',passwd='wodemima',port=3306, charset='utf8')
             self.conn.select_db('Mom_Baby')
             cur=self.conn.cursor()
             sql = """CREATE TABLE IF NOT EXISTS %s (Id INT PRIMARY KEY AUTO_INCREMENT,
