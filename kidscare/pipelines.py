@@ -18,7 +18,9 @@ milk_website = ('tmall','jd','yhd','suning','weiwei','sfbest')
 DbHost = None
 if platform.system() is 'Windows':
     DbHost = '127.0.0.1'
-elif platform.system() is 'Linux':
+elif platform.system() in ('Linux',):
+    DbHost = '10.31.186.63'
+else:
     DbHost = '10.31.186.63'
 
 class KidscarePreprocessPipeline(object):
