@@ -58,7 +58,7 @@ class SUNINGMilk_Spider(MilkSpider):
                 prod_link = prod.xpath('a/@href').extract()[0]
                 pic_link = prod.xpath('a/img/@src | a/img/@src2').extract()[0]
                 info_node = prod.xpath('div[@class="inforBg"]')
-                price_link = info_node.xpath('p[@class="price"]/img/@src | p[@class="price"]/img/@src2').extract()[0] #price image link
+                price_link = info_node.xpath('//img[@class="liprice"]/@src | //img[@class="liprice"]/@src2').extract()[0] #price image link
                 #fp = urllib2.urlopen(price, timeout=5)
                 location = "".join([ImageDir, '/', str(int(time.time())), '.png'])
                 downLoadImg(price_link, location)

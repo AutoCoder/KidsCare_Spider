@@ -67,6 +67,8 @@ class ImagePriceExtractPipeline(object):
         if spider.name is "suning":
             item["price"] = self.__ImagePriceExtract(item["price"])
             item["unitprice"] = item["price"] / item["volume"] * 100
+            if item["unitprice"] < 90 and item["unitprice"] > 10:
+                raise DropItem("item price is not reasonable!" )
             return item#create the table of milk_prod
         else:
             return item      
