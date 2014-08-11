@@ -17,3 +17,5 @@ COMMANDS_MODULE = 'kidscare.commands'
 ITEM_PIPELINES = {'kidscare.pipelines.KidscarePreprocessPipeline': 1,
                   'kidscare.pipelines.ImagePriceExtractPipeline': 2,
                   'kidscare.pipelines.MilkProdStoreDbPipeline': 3,}
+
+RunInCloud = True

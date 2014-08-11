@@ -5,7 +5,7 @@
 
 from spiders.basespider import MilkSpider, PytesserDir, ImageDir
 from pytesser.pytesser import Image, image_to_string
-
+from settings import RunInCloud
 from scrapy.exceptions import DropItem
 from scrapy import log
 import MySQLdb
@@ -16,12 +16,15 @@ import platform
 milk_website = ('tmall','jd','yhd','suning','weiwei','sfbest')
 
 DbHost = None
-if platform.system() is 'Windows':
-    DbHost = '127.0.0.1'
-elif platform.system() in ('Linux',):
-    DbHost = '10.31.186.63'
+if RunInCloud:
+    DbHost = 'alikidscare.mysql.rds.aliyuncs.com'
 else:
-    DbHost = '10.31.186.63'
+    if platform.system() is 'Windows':
+        DbHost = '127.0.0.1'
+    elif platform.system() in ('Linux',):
+        DbHost = '10.31.186.63'
+    else:
+        DbHost = '10.31.186.63'
 
 class KidscarePreprocessPipeline(object):
     """
@@ -93,7 +96,7 @@ class MilkProdStoreDbPipeline(object):
                                                      packaging_type ENUM("jar","box","suitcase") DEFAULT "jar",
                                                      pic_link TEXT, 
                                                      prod_link TEXT,
-                                                     scrapy_time DATETIME NOT NULL DEFAULT NOW())""" % "Milk_Prod"
+                                                     scrapy_time TIMESTAMP NOT NULL DEFAULT NOW())""" % "Milk_Prod"
             cur.execute(sql)           
         except MySQLdb.Error,e:
             log.msg("Mysql Error %d: %s" % (e.args[0], e.args[1]), log.ERROR)
