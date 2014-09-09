@@ -76,6 +76,7 @@ class ImagePriceExtractPipeline(object):
             raise DropItem("item price is not reasonable!" )
         if item["unitprice"] > 90 or item["unitprice"] < 10:
             raise DropItem("item unitprice is not reasonable!" )
+        item["unitprice"] = round(item["unitprice"], 2)
         return item#create the table of milk_prod
         
 class MilkProdStoreDbPipeline(object):
