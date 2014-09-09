@@ -12,7 +12,7 @@ from kidscare.spiders.basespider import MilkSpider
 from scrapy import log
 
 import sys
-#import re
+import re
 #import json
 
 class DDMilk_Spider(MilkSpider):
@@ -43,7 +43,7 @@ class DDMilk_Spider(MilkSpider):
                 prod_link = prod_inner_node.xpath('a[@class="pic"]/@href').extract()[0]
                 pic_link = prod_inner_node.xpath('a[@class="pic"]/img/@data-original').extract()[0]
                 price = prod_inner_node.xpath('p[@class="price"]/span[@class="price_n"]/text()').extract()[0][1:]
-                item["prod_link"] = prod_link
+                item["prod_link"] = self.transfer2mobile(prod_link)
                 item["pic_link"] = pic_link
                 item["price"] = float(price)
                 dict = super(DDMilk_Spider, self).ParseTitleToDict(title)
@@ -68,6 +68,15 @@ class DDMilk_Spider(MilkSpider):
             nextpage_link = "http://" + self.allowed_domains[0] + nextpage_node.extract()[0]
         
         yield Request(url=nextpage_link, callback=self.parse)
+        
+    def transfer2mobile(self, prod_link):
+        m = re.match(ur".*?/(\d+)\.html", prod_link)
+        if m:
+            prod_id = m.group(1)
+            return "http://m.dangdang.com/product.php?pid=%s" % prod_id
+        else: 
+            return prod_link
+        
         
     def __unicode__(self):
         return unicode(self.name)
