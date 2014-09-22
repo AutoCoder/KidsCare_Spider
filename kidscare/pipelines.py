@@ -22,9 +22,9 @@ else:
     if platform.system() is 'Windows':
         DbHost = '127.0.0.1'
     elif platform.system() in ('Linux',):
-        DbHost = '10.31.186.165'
+        DbHost = '10.31.186.132'
     else:
-        DbHost = '10.31.186.165'
+        DbHost = '10.31.186.132'
 
 class KidscarePreprocessPipeline(object):
     """
