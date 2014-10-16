@@ -108,6 +108,11 @@ class MilkProdStoreDbPipeline(object):
         if not issubclass(type(spider), MilkSpider):
             return item#create the table of milk_prod
         
+        if spider.name is "jd_ajax":
+            tunnel = "jd"
+        else:
+            tunnel = spider.name
+            
         if self.conn:
             cur = self.conn.cursor()
 
@@ -124,7 +129,7 @@ class MilkProdStoreDbPipeline(object):
                                                          packaging_type, 
                                                          pic_link, 
                                                          prod_link) VALUES ("%s", "%s", "%s", %d, %f, %f, %f, "%s", "%s", "%s")
-            """ % (spider.name, item["brand"], item["name"], item["segment"], item["price"], item["unitprice"], item["volume"], item["packaging_type"]\
+            """ % (tunnel, item["brand"], item["name"], item["segment"], item["price"], item["unitprice"], item["volume"], item["packaging_type"]\
                 , (item["pic_link"]), item["prod_link"])
             
             cur.execute(insert_sql)
