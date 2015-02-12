@@ -17,7 +17,9 @@ milk_website = ('tmall','jd','yhd','suning','weiwei','sfbest')
 
 DbHost = None
 if RunInCloud:
-    DbHost = 'alikidscare.mysql.rds.aliyuncs.com'
+    # before migrating from rds to ecs
+    # DbHost = 'alikidscare.mysql.rds.aliyuncs.com'
+    DbHost = '127.0.0.1'
 else:
     if platform.system() is 'Windows':
         DbHost = '127.0.0.1'
