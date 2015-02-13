@@ -39,7 +39,7 @@ class KidscarePreprocessPipeline(object):
         try:
             self.conn=MySQLdb.connect(host=DbHost, user='spider',passwd='wodemima',port=3306, charset='utf8')
             cur=self.conn.cursor()
-            cur.execute('create database if not exists Mom_Baby') 
+            cur.execute('create database if not exists mom_baby') 
             self.conn.commit()    
                  
         except MySQLdb.Error,e:
@@ -88,7 +88,7 @@ class MilkProdStoreDbPipeline(object):
     def open_spider(self, spider):
         try:
             self.conn=MySQLdb.connect(host=DbHost, user='spider',passwd='wodemima',port=3306, charset='utf8')
-            self.conn.select_db('Mom_Baby')
+            self.conn.select_db('mom_baby')
             cur=self.conn.cursor()
             sql = """CREATE TABLE IF NOT EXISTS %s (Id INT PRIMARY KEY AUTO_INCREMENT,
                                                      tunnel varchar(20), 
