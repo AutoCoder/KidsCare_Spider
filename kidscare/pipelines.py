@@ -101,7 +101,7 @@ class MilkProdStoreDbPipeline(object):
                                                      packaging_type ENUM("jar","box","suitcase") DEFAULT "jar",
                                                      pic_link TEXT, 
                                                      prod_link TEXT,
-                                                     scrapy_time TIMESTAMP NOT NULL DEFAULT NOW())""" % "Milk_Prod"
+                                                     scrapy_time TIMESTAMP NOT NULL DEFAULT NOW())""" % "milk_prod"
             cur.execute(sql)           
         except MySQLdb.Error,e:
             log.msg("Mysql Error %d: %s" % (e.args[0], e.args[1]), log.ERROR)
@@ -121,7 +121,7 @@ class MilkProdStoreDbPipeline(object):
             #part = u"""INSERT INTO 123 ( title ) VALUES ("%s") """ % item["title"]
             #print part
             item["packaging_type"] = 'jar'
-            insert_sql = u"""INSERT INTO Milk_Prod (tunnel,
+            insert_sql = u"""INSERT INTO milk_prod (tunnel,
                                                          brand,
                                                          name, 
                                                          segment, 
