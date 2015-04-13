@@ -37,7 +37,11 @@ class JDMilk_AJAX_Spider(MilkSpider):
         root_node = json.loads(response.body_as_unicode())
         
         
-        listdata = root_node["wares"]
+        wares = root_node["wares"]
+        
+        wares_dict = json.loads(wares)
+        
+        listdata = wares_dict["wareList"]
         
         if len(listdata) == 0:
             return
