@@ -65,7 +65,7 @@ class SUNINGMilk_Spider(MilkSpider):
                 item["prod_link"] = prod_link
                 item["pic_link"] = pic_link
                 item["price"] = location
-                title = info_node.xpath('span/a/p/text()').extract()[0]
+                title = info_node.xpath('h3/a/p/text()').extract()[0]
                 dict = super(SUNINGMilk_Spider, self).ParseTitleToDict(title)
                 item["name"] = dict["name"]
                 item["brand"] = dict["brand"]
